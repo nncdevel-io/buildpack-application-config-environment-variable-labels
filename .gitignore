@@ -1,0 +1,10 @@
+/bin/
+
+/docker-compose.yml
+
+/cover.out
+/cover.html
+
+/.idea/
+/datadog/dd-trace-java/
+/buildpack/
