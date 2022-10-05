@@ -4,10 +4,27 @@ application.proerpties / application.yaml 上の環境変数で置換される�
 
 ## Configration
 
-| 環境編集                | 説明 |
+| 環境変数                | 説明 |
 |------------------------|--------------------------|
 | `$BP_APPLICATION_CONFIG_ENVIRONMENT_VARIABLE_LABEL_NAME` | 挿入するラベルのキーを指定します。 <br> デフォルトでは `io.nncdevel.buildpacks.application-config.environment-variables` を利用します。|
 
+## Output Label value
+
+以下の3項目を持ったオブジェクト配列のJSON文字列が出力されます。
+
+- `name` string : 環境変数名
+- `required` boolean : 環境変数が必須（= プレースホルダのデフォルト値がない）の場合 `true` が設定されます。  
+- `defaultValue` string : デフォルト値。設定されていない場合は空文字が設定されます。
+
+例：
+
+```json
+[
+    {"name": "JDBC_URL", "required": true, "defaultValue": ""},
+    {"name": "API_ENDPOINT", "required": false, "defaultValue": "https://github.com"}
+]
+
+```
 
 ## ビルドに必要なもの
 
