@@ -1,7 +1,6 @@
 package labels
 
 import (
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -67,7 +66,7 @@ func (p TextPlaceHolderExtractor) Extract() ([]EnvironmentVariable, error) {
 		return []EnvironmentVariable{}, nil
 	}
 
-	propertiesBytes, err := ioutil.ReadFile(p.TargetFilePath)
+	propertiesBytes, err := os.ReadFile(p.TargetFilePath)
 	if err != nil {
 		p.Logger.Bodyf("Read target file failed. %v", err)
 		return []EnvironmentVariable{}, nil
