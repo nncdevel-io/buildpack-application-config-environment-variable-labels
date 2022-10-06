@@ -34,6 +34,9 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	extractor := NewTextPlaceHolderExtractorChain(
 		&b.Logger,
 		[]string{
+			"BOOT-INF/classes/application.properties",
+			"BOOT-INF/classes/application.yaml",
+			"BOOT-INF/classes/application.yml",
 			"WEB-INF/classes/application.properties",
 			"WEB-INF/classes/application.yaml",
 			"WEB-INF/classes/application.yml",
