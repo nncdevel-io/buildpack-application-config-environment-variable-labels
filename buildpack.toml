@@ -10,9 +10,15 @@ api = "0.7"
   sbom-formats = ["application/vnd.syft+json", "application/vnd.cyclonedx+json"]
 
 [[metadata.configurations]]
-name        = "BP_APPLICATION_CONFIG_ENVIRONMENT_VARIABLE_LABEL_NAME"
+name        = "BP_APP_CONFIG_ENVIRONMENT_VARIABLE_LABEL_NAME"
 description = "Export target OCI image label key"
 default     = "io.nncdevel.buildpacks.application-config.environment-variables"
+build       = true
+
+[[metadata.configurations]]
+name        = "BP_APP_CONFIG_ENVIRONMENT_VARIABLE_TARGET_PATTERNS"
+description = "Target file glob patterns."
+default     = "BOOT-INF/classes/application.properties,BOOT-INF/classes/application.ya?ml,WEB-INF/classes/application.properties,WEB-INF/classes/application.ya?ml"
 build       = true
 
 # The list of stacks that the buildpack itself is compatible with

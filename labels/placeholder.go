@@ -18,10 +18,8 @@ type PlaceholderExtractorChain struct {
 }
 
 func NewTextPlaceHolderExtractorChain(logger *bard.Logger, paths []string) *PlaceholderExtractorChain {
-	logger.Header("Candidate files")
 	var extractors []PlaceholderExtractor
 	for _, v := range paths {
-		logger.Body(v)
 		extractors = append(extractors, NewTextPlaceHolderExtractor(logger, v))
 	}
 	return NewPlaceholderExtractorChain(logger, extractors)

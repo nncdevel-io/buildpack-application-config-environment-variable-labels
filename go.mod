@@ -18,6 +18,7 @@ require (
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
+	github.com/mattn/go-zglob v0.0.3 // indirect
 	github.com/mitchellh/hashstructure/v2 v2.0.2 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
