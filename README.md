@@ -7,6 +7,18 @@ application.proerpties / application.yaml 上の環境変数で置換される�
 | 環境変数                | 説明 |
 |------------------------|--------------------------|
 | `$BP_APPLICATION_CONFIG_ENVIRONMENT_VARIABLE_LABEL_NAME` | 挿入するラベルのキーを指定します。 <br> デフォルトでは `io.nncdevel.buildpacks.application-config.environment-variables` を利用します。|
+| `$BP_APP_CONFIG_ENVIRONMENT_VARIABLE_TARGET_PATTERNS` | キーを抽出する対象ファイルパスをカンマ区切りで設定します。デフォルト値は後述。 |
+
+
+## キーを抽出する対象ファイルパス
+
+デフォルト値は以下の通り。  
+各パスは github.com/mattn/go-zglob のパターンを設定できます。
+
+```
+BOOT-INF/classes/application.properties,BOOT-INF/classes/application.ya?ml,WEB-INF/classes/application.properties,WEB-INF/classes/application.ya?ml
+```
+
 
 ## Output Label value
 
