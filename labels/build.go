@@ -4,12 +4,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
-	"regexp"
+	"strings"
 
 	"github.com/buildpacks/libcnb"
 	"github.com/mattn/go-zglob"
 	"github.com/paketo-buildpacks/libpak"
 	"github.com/paketo-buildpacks/libpak/bard"
+)
+
+var (
+	jsonMarshal           = json.Marshal
+	glob                  = zglob.Glob
+	configurationResolver = libpak.NewConfigurationResolver
 )
 
 type Build struct {
@@ -25,30 +31,30 @@ type EnvironmentVariable struct {
 func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	b.Logger.Title(context.Buildpack)
 
-	cr, err := libpak.NewConfigurationResolver(context.Buildpack, &b.Logger)
+	cr, err := configurationResolver(context.Buildpack, &b.Logger)
 	if err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to create configuration resolver\n%w", err)
 	}
 
 	labelKey, _ := cr.Resolve("BP_APP_CONFIG_ENVIRONMENT_VARIABLE_LABEL_NAME")
-
 	targetPatterns, _ := cr.Resolve("BP_APP_CONFIG_ENVIRONMENT_VARIABLE_TARGET_PATTERNS")
 
-	targets := b.parseTargetPatterns(context.Application.Path, targetPatterns)
+	targets := parseTargetPatterns(context.Application.Path, targetPatterns)
 	candidates := b.findCandidates(targets)
 
 	result := libcnb.NewBuildResult()
 
-	extractor := NewTextPlaceHolderExtractorChain(&b.Logger, candidates)
-
-	environmentVariables, err := extractor.Extract()
-	if err != nil {
-		panic(err)
+	if len(candidates) == 0 {
+		return result, nil
 	}
 
-	label, err := b.toLabel(labelKey, environmentVariables)
+	extractor := NewTextPlaceHolderExtractorChain(&b.Logger, candidates)
+
+	environmentVariables := extractor.Extract()
+
+	label, err := toLabel(labelKey, environmentVariables)
 	if err != nil {
-		panic(err)
+		return result, err
 	}
 
 	result.Labels = append(result.Labels, label)
@@ -57,41 +63,12 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 
 }
 
-func (b Build) toLabel(labelKey string, environmentVariables []EnvironmentVariable) (libcnb.Label, error) {
-	jsonBytes, err := json.Marshal(environmentVariables)
-
-	if err != nil {
-		return libcnb.Label{}, err
-	}
-
-	label := libcnb.Label{
-		Key:   labelKey,
-		Value: string(jsonBytes),
-	}
-
-	return label, nil
-}
-
-func (b Build) parseTargetPatterns(basePath string, targets string) []string {
-	splitPattern := regexp.MustCompile(`, *`)
-	split := splitPattern.Split(targets, -1)
-
-	var result []string
-
-	for _, v := range split {
-		path := filepath.Join(basePath, v)
-		result = append(result, path)
-	}
-
-	return result
-}
-
 func (b Build) findCandidates(targets []string) []string {
 
-	var result []string
+	result := []string{}
 
 	for _, target := range targets {
-		matched, err := zglob.Glob(target)
+		matched, err := glob(target)
 
 		b.Logger.Debugf("pattern: %s", target)
 
@@ -110,4 +87,40 @@ func (b Build) findCandidates(targets []string) []string {
 
 	return result
 
+}
+
+func toLabel(labelKey string, environmentVariables []EnvironmentVariable) (libcnb.Label, error) {
+
+	vars := []EnvironmentVariable{}
+
+	if environmentVariables != nil {
+		vars = environmentVariables
+	}
+
+	jsonBytes, err := jsonMarshal(vars)
+
+	if err != nil {
+		return libcnb.Label{
+			Key:   labelKey,
+			Value: "[]", // empty array
+		}, err
+	}
+
+	return libcnb.Label{
+		Key:   labelKey,
+		Value: string(jsonBytes),
+	}, nil
+}
+
+func parseTargetPatterns(basePath string, targets string) []string {
+	split := strings.Split(targets, ",")
+
+	result := []string{}
+
+	for _, v := range split {
+		path := filepath.Join(basePath, strings.TrimSpace(v))
+		result = append(result, path)
+	}
+
+	return result
 }
