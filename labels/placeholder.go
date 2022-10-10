@@ -9,7 +9,7 @@ import (
 )
 
 type PlaceholderExtractor interface {
-	Extract() ([]EnvironmentVariable, error)
+	Extract() []EnvironmentVariable
 }
 
 type PlaceholderExtractorChain struct {
@@ -18,7 +18,7 @@ type PlaceholderExtractorChain struct {
 }
 
 func NewTextPlaceHolderExtractorChain(logger *bard.Logger, paths []string) *PlaceholderExtractorChain {
-	var extractors []PlaceholderExtractor
+	extractors := []PlaceholderExtractor{}
 	for _, v := range paths {
 		extractors = append(extractors, NewTextPlaceHolderExtractor(logger, v))
 	}
@@ -32,15 +32,15 @@ func NewPlaceholderExtractorChain(logger *bard.Logger, extractors []PlaceholderE
 	}
 }
 
-func (p PlaceholderExtractorChain) Extract() ([]EnvironmentVariable, error) {
+func (p PlaceholderExtractorChain) Extract() []EnvironmentVariable {
 	for _, extractor := range p.Extractors {
-		r, err := extractor.Extract()
-		if len(r) == 0 || err != nil {
+		r := extractor.Extract()
+		if len(r) == 0 {
 			continue
 		}
-		return r, err
+		return r
 	}
-	return []EnvironmentVariable{}, nil
+	return []EnvironmentVariable{}
 }
 
 type TextPlaceHolderExtractor struct {
@@ -55,40 +55,48 @@ func NewTextPlaceHolderExtractor(logger *bard.Logger, path string) *TextPlaceHol
 	}
 }
 
-func (p TextPlaceHolderExtractor) Extract() ([]EnvironmentVariable, error) {
+func (p TextPlaceHolderExtractor) Extract() []EnvironmentVariable {
 
 	p.Logger.Headerf("Target file : %s\n", p.TargetFilePath)
 
-	if p.targetFileIsNotExists() {
+	environmentVariables := []EnvironmentVariable{}
+
+	if targetFileIsNotExists(p.TargetFilePath) {
 		p.Logger.Body("File does not exists.\n")
-		return []EnvironmentVariable{}, nil
+		return environmentVariables
 	}
 
 	propertiesBytes, err := os.ReadFile(p.TargetFilePath)
 	if err != nil {
 		p.Logger.Bodyf("Read target file failed. %v", err)
-		return []EnvironmentVariable{}, nil
+		return environmentVariables
 	}
 
+	environmentVariables = extractEnvironmentVariablePlaceholders(string(propertiesBytes), p.Logger)
+
+	return environmentVariables
+
+}
+
+func extractEnvironmentVariablePlaceholders(input string, logger *bard.Logger) []EnvironmentVariable {
 	environmentVariables := []EnvironmentVariable{}
 
 	placeholderRegExp := regexp.MustCompile(`(\$\{([^}]+)})`)
-	matched := placeholderRegExp.FindAllStringSubmatch(string(propertiesBytes), -1)
+	matched := placeholderRegExp.FindAllStringSubmatch(input, -1)
 
 	for _, v := range matched {
 		inset := v[2]
 		variable := ParsePlaceholder(inset)
 
-		p.Logger.Bodyf(`EnvironmentVariable: "%s" DefaultValue: "%s"`, variable.Name, variable.DefaultValue)
+		logger.Bodyf(`EnvironmentVariable: "%s" DefaultValue: "%s"`, variable.Name, variable.DefaultValue)
 		environmentVariables = append(environmentVariables, variable)
 	}
 
-	return environmentVariables, nil
-
+	return environmentVariables
 }
 
-func (p TextPlaceHolderExtractor) targetFileIsNotExists() bool {
-	_, err := os.Stat(p.TargetFilePath)
+func targetFileIsNotExists(targetFilePath string) bool {
+	_, err := os.Stat(targetFilePath)
 	return err != nil && os.IsNotExist(err)
 }
 
