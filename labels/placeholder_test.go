@@ -178,6 +178,24 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 			Expect(res[0]).Should(Equal(expect))
 		})
 
+		it("duplicated", func() {
+			input := `
+			a=${placeholder_1}
+			b=${placeholder_1:default}
+			`
+
+			res := extractEnvironmentVariablePlaceholders(input, &bard.Logger{})
+
+			expect := EnvironmentVariable{
+				Name:         "placeholder_1",
+				Required:     true,
+				DefaultValue: "",
+			}
+
+			Expect(res).Should(HaveLen(1))
+			Expect(res[0]).Should(Equal(expect))
+		})
+
 		it("multi placeholder in single line", func() {
 			input := `
 			a=${placeholder_a}_${placeholder_b}
@@ -195,6 +213,20 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 			input := `
 			a=${placeholder_a}
 			b=${placeholder_b}
+			`
+
+			res := extractEnvironmentVariablePlaceholders(input, &bard.Logger{})
+
+			Expect(res).Should(HaveLen(2))
+			Expect(res[0].Name).Should(Equal("placeholder_a"))
+			Expect(res[1].Name).Should(Equal("placeholder_b"))
+
+		})
+
+		it("environment variable order", func() {
+			input := `
+			a=${placeholder_b}
+			b=${placeholder_a}
 			`
 
 			res := extractEnvironmentVariablePlaceholders(input, &bard.Logger{})
