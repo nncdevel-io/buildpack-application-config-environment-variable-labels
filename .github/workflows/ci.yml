@@ -120,7 +120,7 @@ jobs:
             echo "VERSION_MAJOR=${MAJOR_VERSION}" >> "${GITHUB_ENV}"
             echo "VERSION_MINOR=${MINOR_VERSION}" >> "${GITHUB_ENV}"
           elif [[ ${GITHUB_REF} =~ refs/heads/(.+) ]]; then
-            VERSION=${BASH_REMATCH[1]////-}
+            VERSION=$(git rev-parse --short HEAD)
           else
             VERSION=$(git rev-parse --short HEAD)
           fi
