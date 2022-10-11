@@ -178,6 +178,24 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 			Expect(res[0]).Should(Equal(expect))
 		})
 
+		it("duplicated", func() {
+			input := `
+			a=${placeholder_1}
+			b=${placeholder_1:default}
+			`
+
+			res := extractEnvironmentVariablePlaceholders(input, &bard.Logger{})
+
+			expect := EnvironmentVariable{
+				Name:         "placeholder_1",
+				Required:     true,
+				DefaultValue: "",
+			}
+
+			Expect(res).Should(HaveLen(1))
+			Expect(res[0]).Should(Equal(expect))
+		})
+
 		it("multi placeholder in single line", func() {
 			input := `
 			a=${placeholder_a}_${placeholder_b}

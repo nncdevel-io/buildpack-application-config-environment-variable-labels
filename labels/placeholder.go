@@ -81,6 +81,8 @@ func (p TextPlaceHolderExtractor) Extract() []EnvironmentVariable {
 func extractEnvironmentVariablePlaceholders(input string, logger *bard.Logger) []EnvironmentVariable {
 	environmentVariables := []EnvironmentVariable{}
 
+	set := map[string]EnvironmentVariable{}
+
 	placeholderRegExp := regexp.MustCompile(`(\$\{([^}]+)})`)
 	matched := placeholderRegExp.FindAllStringSubmatch(input, -1)
 
@@ -89,6 +91,13 @@ func extractEnvironmentVariablePlaceholders(input string, logger *bard.Logger) [
 		variable := ParsePlaceholder(inset)
 
 		logger.Bodyf(`EnvironmentVariable: "%s" DefaultValue: "%s"`, variable.Name, variable.DefaultValue)
+
+		if _, ok := set[variable.Name]; !ok {
+			set[variable.Name] = variable
+		}
+	}
+
+	for _, variable := range set {
 		environmentVariables = append(environmentVariables, variable)
 	}
 
