@@ -222,6 +222,20 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 			Expect(res[1].Name).Should(Equal("placeholder_b"))
 
 		})
+
+		it("environment variable order", func() {
+			input := `
+			a=${placeholder_b}
+			b=${placeholder_a}
+			`
+
+			res := extractEnvironmentVariablePlaceholders(input, &bard.Logger{})
+
+			Expect(res).Should(HaveLen(2))
+			Expect(res[0].Name).Should(Equal("placeholder_a"))
+			Expect(res[1].Name).Should(Equal("placeholder_b"))
+
+		})
 	})
 
 	when("targetFileIsNotExists", func() {

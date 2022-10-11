@@ -3,6 +3,7 @@ package labels
 import (
 	"os"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/paketo-buildpacks/libpak/bard"
@@ -100,6 +101,8 @@ func extractEnvironmentVariablePlaceholders(input string, logger *bard.Logger) [
 	for _, variable := range set {
 		environmentVariables = append(environmentVariables, variable)
 	}
+
+	sort.Slice(environmentVariables, func(a, b int) bool { return environmentVariables[a].Name < environmentVariables[b].Name })
 
 	return environmentVariables
 }
