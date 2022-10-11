@@ -1,6 +1,6 @@
-name: go-ci
+name: Publish
 
-on:
+"on":
   release:
     types: [published]
 
