@@ -2,6 +2,12 @@
 
 application.proerpties / application.yaml 上の環境変数で置換されるキーを抽出し、OCIイメージラベルとして出力するbuildpackです。
 
+## How to use
+
+```bash
+pack build -b nncdevel/buildpack-application-config-environment-variable-labels:1.0.0
+```
+
 ## Configration
 
 | 環境変数                | 説明 |
@@ -67,12 +73,6 @@ buildpackのパッケージング(Dockerイメージ化)
 $ docker-compose run package-buildpack-image
 ```
 
-イメージのpush
-
-```bash
-$ docker tag paketo-dd-java-agent oishikawa/paketo-dd-java-agent:0.0.1
-$ docker push oishikawa/paketo-dd-java-agent:0.0.1
-```
 
 ## golang、pack-cliをインストールしている場合のビルド手順
 
@@ -86,10 +86,4 @@ buildpackのパッケージング(Dockerイメージ化)
 
 ```bash
 $ ./scripts/package-buildpack-image.sh
-```
-
-イメージのpush
-
-```bash
-$ ./scripts/push-image.sh
 ```
