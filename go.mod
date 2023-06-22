@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/buildpacks/libcnb v1.28.0
 	github.com/mattn/go-zglob v0.0.4
-	github.com/onsi/gomega v1.27.7
+	github.com/onsi/gomega v1.27.8
 	github.com/paketo-buildpacks/libpak v1.65.0
 	github.com/sclevine/spec v1.4.0
 )
