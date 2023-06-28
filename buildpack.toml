@@ -5,7 +5,7 @@ api = "0.7"
 [buildpack]
   id = "nncdevel-io/paketo-environment-variable-labels"
   name = "Export pplication configuration Environment Variable to labels"
-  version = "0.0.1"
+  version = "1.0.2"
   keywords = ["java", "environment variable"]
   sbom-formats = ["application/vnd.syft+json", "application/vnd.cyclonedx+json"]
 
