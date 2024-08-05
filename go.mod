@@ -3,7 +3,7 @@ module github.com/nncdevel-io/buildpack-application-config-environment-variable-
 go 1.21
 
 require (
-	github.com/buildpacks/libcnb v1.30.1
+	github.com/buildpacks/libcnb v1.30.3
 	github.com/mattn/go-zglob v0.0.4
 	github.com/onsi/gomega v1.33.1
 	github.com/paketo-buildpacks/libpak v1.68.2
