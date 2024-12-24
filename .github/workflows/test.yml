@@ -71,7 +71,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.56.2
+          version: v1.62.2
 
   create-package:
     needs: [test, lint]
