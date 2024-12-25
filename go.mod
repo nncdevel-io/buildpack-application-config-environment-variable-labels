@@ -1,6 +1,6 @@
 module github.com/nncdevel-io/buildpack-application-config-environment-variable-labels
 
-go 1.21
+go 1.23.4
 
 require (
 	github.com/buildpacks/libcnb v1.30.3
