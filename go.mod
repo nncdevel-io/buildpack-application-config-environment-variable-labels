@@ -5,7 +5,7 @@ go 1.23.4
 require (
 	github.com/buildpacks/libcnb v1.30.4
 	github.com/mattn/go-zglob v0.0.6
-	github.com/onsi/gomega v1.36.3
+	github.com/onsi/gomega v1.37.0
 	github.com/paketo-buildpacks/libpak v1.72.1
 	github.com/sclevine/spec v1.4.0
 )
