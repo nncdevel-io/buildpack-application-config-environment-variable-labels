@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/paketo-buildpacks/libpak/bard"
+	"github.com/paketo-buildpacks/libpak/v2/log"
 )
 
 type PlaceholderExtractor interface {
@@ -14,19 +14,19 @@ type PlaceholderExtractor interface {
 }
 
 type PlaceholderExtractorChain struct {
-	Logger     *bard.Logger
+	Logger     log.Logger
 	Extractors []PlaceholderExtractor
 }
 
-func NewTextPlaceHolderExtractorChain(logger *bard.Logger, paths []string) *PlaceholderExtractorChain {
-	extractors := []PlaceholderExtractor{}
+func NewTextPlaceHolderExtractorChain(logger log.Logger, paths []string) *PlaceholderExtractorChain {
+	var extractors []PlaceholderExtractor
 	for _, v := range paths {
 		extractors = append(extractors, NewTextPlaceHolderExtractor(logger, v))
 	}
 	return NewPlaceholderExtractorChain(logger, extractors)
 }
 
-func NewPlaceholderExtractorChain(logger *bard.Logger, extractors []PlaceholderExtractor) *PlaceholderExtractorChain {
+func NewPlaceholderExtractorChain(logger log.Logger, extractors []PlaceholderExtractor) *PlaceholderExtractorChain {
 	return &PlaceholderExtractorChain{
 		Logger:     logger,
 		Extractors: extractors,
@@ -45,22 +45,22 @@ func (p PlaceholderExtractorChain) Extract() []EnvironmentVariable {
 }
 
 type TextPlaceHolderExtractor struct {
-	Logger         *bard.Logger
+	Logger         log.Logger
 	TargetFilePath string
 }
 
-func NewTextPlaceHolderExtractor(logger *bard.Logger, path string) *TextPlaceHolderExtractor {
+func NewTextPlaceHolderExtractor(logger log.Logger, path string) *TextPlaceHolderExtractor {
 	return &TextPlaceHolderExtractor{
 		Logger:         logger,
 		TargetFilePath: path,
 	}
 }
 
-func (p TextPlaceHolderExtractor) Extract() []EnvironmentVariable {
+func (p *TextPlaceHolderExtractor) Extract() []EnvironmentVariable {
 
 	p.Logger.Headerf("Target file : %s\n", p.TargetFilePath)
 
-	environmentVariables := []EnvironmentVariable{}
+	var environmentVariables []EnvironmentVariable
 
 	if targetFileIsNotExists(p.TargetFilePath) {
 		p.Logger.Body("File does not exists.\n")
@@ -79,8 +79,8 @@ func (p TextPlaceHolderExtractor) Extract() []EnvironmentVariable {
 
 }
 
-func extractEnvironmentVariablePlaceholders(input string, logger *bard.Logger) []EnvironmentVariable {
-	environmentVariables := []EnvironmentVariable{}
+func extractEnvironmentVariablePlaceholders(input string, logger log.Logger) []EnvironmentVariable {
+	var environmentVariables []EnvironmentVariable
 
 	set := map[string]EnvironmentVariable{}
 

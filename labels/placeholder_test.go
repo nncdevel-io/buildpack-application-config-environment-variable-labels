@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	. "github.com/onsi/gomega"
-	"github.com/paketo-buildpacks/libpak/bard"
+	"github.com/paketo-buildpacks/libpak/v2/log"
 	"github.com/sclevine/spec"
 )
 
@@ -35,7 +35,7 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 		tmp := createTempFile()
 		it("returns new instance", func() {
 			targets := []string{"/tmp/dummy", tmp.Name()}
-			extractors := NewTextPlaceHolderExtractorChain(&bard.Logger{}, targets)
+			extractors := NewTextPlaceHolderExtractorChain(log.NewDiscardLogger(), targets)
 
 			envs := extractors.Extract()
 
@@ -45,13 +45,13 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 
 	when("NewPlaceholderExtractorChain", func() {
 		it("returns new instance", func() {
-			extractor := NewPlaceholderExtractorChain(&bard.Logger{}, []PlaceholderExtractor{})
+			extractor := NewPlaceholderExtractorChain(log.NewDiscardLogger(), []PlaceholderExtractor{})
 
 			Expect(extractor.Extractors).Should(HaveLen(0))
 		})
 
 		it("Extract with no extractor", func() {
-			extractor := NewPlaceholderExtractorChain(&bard.Logger{}, []PlaceholderExtractor{})
+			extractor := NewPlaceholderExtractorChain(log.NewDiscardLogger(), []PlaceholderExtractor{})
 
 			envs := extractor.Extract()
 
@@ -64,10 +64,10 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 			tmp := createTempFile()
 
 			extractors := []PlaceholderExtractor{
-				NewTextPlaceHolderExtractor(&bard.Logger{}, tmp.Name()),
+				NewTextPlaceHolderExtractor(log.NewDiscardLogger(), tmp.Name()),
 			}
 
-			extractor := NewPlaceholderExtractorChain(&bard.Logger{}, extractors)
+			extractor := NewPlaceholderExtractorChain(log.NewDiscardLogger(), extractors)
 
 			envs := extractor.Extract()
 
@@ -80,11 +80,11 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 			tmp := createTempFile()
 
 			extractors := []PlaceholderExtractor{
-				NewTextPlaceHolderExtractor(&bard.Logger{}, "/tmp/dummy"),
-				NewTextPlaceHolderExtractor(&bard.Logger{}, tmp.Name()),
+				NewTextPlaceHolderExtractor(log.NewDiscardLogger(), "/tmp/dummy"),
+				NewTextPlaceHolderExtractor(log.NewDiscardLogger(), tmp.Name()),
 			}
 
-			extractor := NewPlaceholderExtractorChain(&bard.Logger{}, extractors)
+			extractor := NewPlaceholderExtractorChain(log.NewDiscardLogger(), extractors)
 
 			envs := extractor.Extract()
 
@@ -101,7 +101,7 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 				panic(err)
 			}
 
-			extractor := NewTextPlaceHolderExtractor(&bard.Logger{}, tmp.Name())
+			extractor := NewTextPlaceHolderExtractor(log.NewDiscardLogger(), tmp.Name())
 
 			Expect(extractor).ShouldNot(BeNil())
 		})
@@ -109,7 +109,7 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 		it("can extract placeholder in file", func() {
 			tmp := createTempFile()
 
-			extractor := NewTextPlaceHolderExtractor(&bard.Logger{}, tmp.Name())
+			extractor := NewTextPlaceHolderExtractor(log.NewDiscardLogger(), tmp.Name())
 
 			envs := extractor.Extract()
 
@@ -117,7 +117,7 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 		})
 
 		it("could not extract placeholder when target file not exists", func() {
-			extractor := NewTextPlaceHolderExtractor(&bard.Logger{}, "/tmp/not-exists")
+			extractor := NewTextPlaceHolderExtractor(log.NewDiscardLogger(), "/tmp/not-exists")
 
 			envs := extractor.Extract()
 
@@ -139,7 +139,7 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 				panic(err)
 			}
 
-			extractor := NewTextPlaceHolderExtractor(&bard.Logger{}, tmp.Name())
+			extractor := NewTextPlaceHolderExtractor(log.NewDiscardLogger(), tmp.Name())
 
 			envs := extractor.Extract()
 
@@ -149,14 +149,17 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 			if err != nil {
 				panic(err)
 			}
-			os.Remove(tmp.Name())
+			err = os.Remove(tmp.Name())
+			if err != nil {
+				return
+			}
 		})
 
 	})
 
 	when("extractEnvironmentVariablePlaceholders", func() {
 		it("no placeholder", func() {
-			res := extractEnvironmentVariablePlaceholders("test", &bard.Logger{})
+			res := extractEnvironmentVariablePlaceholders("test", log.NewDiscardLogger())
 
 			Expect(res).Should(BeEmpty())
 		})
@@ -166,7 +169,7 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 			a=${placeholder_a}
 			`
 
-			res := extractEnvironmentVariablePlaceholders(input, &bard.Logger{})
+			res := extractEnvironmentVariablePlaceholders(input, log.NewDiscardLogger())
 
 			expect := EnvironmentVariable{
 				Name:         "placeholder_a",
@@ -184,7 +187,7 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 			b=${placeholder_1:default}
 			`
 
-			res := extractEnvironmentVariablePlaceholders(input, &bard.Logger{})
+			res := extractEnvironmentVariablePlaceholders(input, log.NewDiscardLogger())
 
 			expect := EnvironmentVariable{
 				Name:         "placeholder_1",
@@ -201,7 +204,7 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 			a=${placeholder_a}_${placeholder_b}
 			`
 
-			res := extractEnvironmentVariablePlaceholders(input, &bard.Logger{})
+			res := extractEnvironmentVariablePlaceholders(input, log.NewDiscardLogger())
 
 			Expect(res).Should(HaveLen(2))
 			Expect(res[0].Name).Should(Equal("placeholder_a"))
@@ -215,7 +218,7 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 			b=${placeholder_b}
 			`
 
-			res := extractEnvironmentVariablePlaceholders(input, &bard.Logger{})
+			res := extractEnvironmentVariablePlaceholders(input, log.NewDiscardLogger())
 
 			Expect(res).Should(HaveLen(2))
 			Expect(res[0].Name).Should(Equal("placeholder_a"))
@@ -229,7 +232,7 @@ func testPlaceholder(t *testing.T, when spec.G, it spec.S) {
 			b=${placeholder_a}
 			`
 
-			res := extractEnvironmentVariablePlaceholders(input, &bard.Logger{})
+			res := extractEnvironmentVariablePlaceholders(input, log.NewDiscardLogger())
 
 			Expect(res).Should(HaveLen(2))
 			Expect(res[0].Name).Should(Equal("placeholder_a"))
