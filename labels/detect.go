@@ -1,7 +1,7 @@
 package labels
 
 import (
-	"github.com/buildpacks/libcnb"
+	"github.com/buildpacks/libcnb/v2"
 )
 
 type Detect struct{}

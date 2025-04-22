@@ -14,7 +14,7 @@ jobs:
       - name: setup
         uses: actions/setup-go@v5
         with:
-          go-version: "1.23.4"
+          go-version: "1.24.2"
         id: go
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -32,7 +32,7 @@ jobs:
       - name: setup
         uses: actions/setup-go@v5
         with:
-          go-version: "^1.23.4"
+          go-version: "^1.24.2"
         id: go
       - name: build
         run: "./scripts/build.sh"
@@ -49,7 +49,7 @@ jobs:
       - name: setup
         uses: actions/setup-go@v5
         with:
-          go-version: "^1.23.4"
+          go-version: "^1.24.2"
         id: go
       - name: test
         run: go version && go test -race -coverprofile=coverage.xml -covermode=atomic ./... -v
@@ -66,12 +66,12 @@ jobs:
       - name: setup
         uses: actions/setup-go@v5
         with:
-          go-version: "^1.23.4"
+          go-version: "^1.24.2"
         id: go
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@v7
         with:
-          version: v1.62.2
+          version: v2.1.2
 
   create-package:
     needs: [test, lint]

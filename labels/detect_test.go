@@ -3,7 +3,7 @@ package labels
 import (
 	"testing"
 
-	"github.com/buildpacks/libcnb"
+	"github.com/buildpacks/libcnb/v2"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/spec"
 )

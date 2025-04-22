@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/buildpacks/libcnb"
+	"github.com/buildpacks/libcnb/v2"
 	"github.com/mattn/go-zglob"
-	"github.com/paketo-buildpacks/libpak"
-	"github.com/paketo-buildpacks/libpak/bard"
+	"github.com/paketo-buildpacks/libpak/v2"
+	"github.com/paketo-buildpacks/libpak/v2/log"
 )
 
 var (
@@ -19,7 +19,7 @@ var (
 )
 
 type Build struct {
-	Logger bard.Logger
+	Logger log.Logger
 }
 
 type EnvironmentVariable struct {
@@ -29,9 +29,14 @@ type EnvironmentVariable struct {
 }
 
 func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
-	b.Logger.Title(context.Buildpack)
+	b.Logger.Title(context.Buildpack.Info.Name, context.Buildpack.Info.Version, context.Buildpack.Info.Homepage)
 
-	cr, err := configurationResolver(context.Buildpack, &b.Logger)
+	meta, err := libpak.NewBuildModuleMetadata(context.Buildpack.Metadata)
+	if err != nil {
+		return libcnb.BuildResult{}, fmt.Errorf("unable to build module metadata\n%w", err)
+	}
+
+	cr, err := configurationResolver(meta)
 	if err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to create configuration resolver\n%w", err)
 	}
@@ -39,7 +44,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	labelKey, _ := cr.Resolve("BP_APP_CONFIG_ENVIRONMENT_VARIABLE_LABEL_NAME")
 	targetPatterns, _ := cr.Resolve("BP_APP_CONFIG_ENVIRONMENT_VARIABLE_TARGET_PATTERNS")
 
-	targets := parseTargetPatterns(context.Application.Path, targetPatterns)
+	targets := parseTargetPatterns(context.ApplicationPath, targetPatterns)
 	candidates := b.findCandidates(targets)
 
 	result := libcnb.NewBuildResult()
@@ -48,7 +53,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 		return result, nil
 	}
 
-	extractor := NewTextPlaceHolderExtractorChain(&b.Logger, candidates)
+	extractor := NewTextPlaceHolderExtractorChain(b.Logger, candidates)
 
 	environmentVariables := extractor.Extract()
 

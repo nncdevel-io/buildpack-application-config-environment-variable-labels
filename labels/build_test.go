@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/buildpacks/libcnb"
+	"github.com/buildpacks/libcnb/v2"
 	. "github.com/onsi/gomega"
-	"github.com/paketo-buildpacks/libpak"
-	"github.com/paketo-buildpacks/libpak/bard"
+	"github.com/paketo-buildpacks/libpak/v2"
+	"github.com/paketo-buildpacks/libpak/v2/log"
 	"github.com/sclevine/spec"
 )
 
@@ -43,14 +43,14 @@ func testBuild(t *testing.T, when spec.G, it spec.S) {
 			},
 		}
 
-		ctx.Application.Path = "/workspace"
+		ctx.ApplicationPath = "/workspace"
 	})
 
 	when("Build", func() {
 
 		it("no candidates", func() {
 			build := Build{
-				Logger: bard.Logger{},
+				Logger: log.NewDiscardLogger(),
 			}
 
 			// build.Build(ctx)
@@ -67,12 +67,12 @@ func testBuild(t *testing.T, when spec.G, it spec.S) {
 		it("configuration resolver raise error", func() {
 			originalConfigurationResolver := configurationResolver
 
-			configurationResolver = func(buildpack libcnb.Buildpack, logger *bard.Logger) (libpak.ConfigurationResolver, error) {
-				return libpak.ConfigurationResolver{}, fmt.Errorf("Dummy Error")
+			configurationResolver = func(md libpak.BuildModuleMetadata) (libpak.ConfigurationResolver, error) {
+				return libpak.ConfigurationResolver{}, fmt.Errorf("dummy Error")
 			}
 
 			build := Build{
-				Logger: bard.Logger{},
+				Logger: log.NewDiscardLogger(),
 			}
 
 			buildResult, err := build.Build(ctx)
@@ -107,10 +107,10 @@ func testBuild(t *testing.T, when spec.G, it spec.S) {
 				},
 			}
 
-			ctx.Application.Path = "/tmp"
+			ctx.ApplicationPath = "/tmp"
 
 			build := Build{
-				Logger: bard.Logger{},
+				Logger: log.NewDiscardLogger(),
 			}
 
 			buildResult, err := build.Build(ctx)
@@ -147,7 +147,7 @@ func testBuild(t *testing.T, when spec.G, it spec.S) {
 				},
 			}
 
-			ctx.Application.Path = "/tmp"
+			ctx.ApplicationPath = "/tmp"
 
 			// Backup and defer recover
 			oldJsonMarshal := jsonMarshal
@@ -161,7 +161,7 @@ func testBuild(t *testing.T, when spec.G, it spec.S) {
 			}
 
 			build := Build{
-				Logger: bard.Logger{},
+				Logger: log.NewDiscardLogger(),
 			}
 
 			buildResult, err := build.Build(ctx)

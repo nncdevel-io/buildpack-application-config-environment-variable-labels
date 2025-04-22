@@ -4,13 +4,15 @@ import (
 	"os"
 
 	"github.com/nncdevel-io/buildpack-application-config-environment-variable-labels/labels"
-	"github.com/paketo-buildpacks/libpak"
-	"github.com/paketo-buildpacks/libpak/bard"
+	"github.com/paketo-buildpacks/libpak/v2"
+	"github.com/paketo-buildpacks/libpak/v2/log"
 )
 
 func main() {
-	libpak.Main(
-		labels.Detect{},
-		labels.Build{Logger: bard.NewLogger(os.Stdout)},
+	detector := labels.Detect{}
+	builder := labels.Build{Logger: log.NewPaketoLogger(os.Stdout)}
+	libpak.BuildpackMain(
+		detector.Detect,
+		builder.Build,
 	)
 }
